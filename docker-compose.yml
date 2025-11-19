@@ -44,7 +44,7 @@ services:
     labels:
       cron.enabled: true
       cron.bot.schedule: "0 4 * * *"
-      cron.bot.command: "rclone --s3-versions --transfers=10 --s3-acl public-read sync /images ovhcloud:${BUCKET_NAME:?undefined}"
+      cron.bot.command: "rclone --s3-versions --transfers=10 --s3-acl public-read sync /images ovhcloud:${IMAGES_BUCKET_NAME:?undefined}"
 
   # copies database dump from the mounted in directory to the remote S3 bucket
   rclone-migration:
@@ -60,7 +60,7 @@ services:
     labels:
       cron.enabled: true
       cron.bot.schedule: "0 5 * * *"
-      cron.bot.command: "rclone --track-renames --transfers=10 sync /data ovhcloud:${BUCKET_NAME:?undefined}"
+      cron.bot.command: "rclone --track-renames --transfers=10 sync /data ovhcloud:${DB_BUCKET_NAME:?undefined}"
 
   cron:
     image: ghcr.io/wikiteq/cron:20250110-ddded6a
