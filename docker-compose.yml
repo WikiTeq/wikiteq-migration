@@ -1,20 +1,82 @@
+x-rclone-config: &rclone-config
+    - RCLONE_CONFIG_OVHCLOUD_TYPE=s3
+    - RCLONE_CONFIG_OVHCLOUD_PROVIDER=Other
+    - RCLONE_CONFIG_OVHCLOUD_ENV_AUTH=false
+    - RCLONE_CONFIG_OVHCLOUD_ACCESS_KEY_ID=${S3_ACCESS_KEY:?undefined}
+    - RCLONE_CONFIG_OVHCLOUD_SECRET_ACCESS_KEY=${S3_SECRET_KEY:?undefined}
+    - RCLONE_CONFIG_OVHCLOUD_ENDPOINT=https://s3.us-east-va.perf.cloud.ovh.us
+    - RCLONE_CONFIG_OVHCLOUD_ACL=private
+    - RCLONE_CONFIG_OVHCLOUD_REGION=us-east-va
+    - RCLONE_CONFIG_OVHCLOUD_LOCATION_CONSTRAINT=us-east-va
+
 services:
+
+  # creates mysql database dumps and stores in a volume
+  database_dumper:
+    image: schnitzler/mysqldump
+    volumes:
+      - database_dumps:/data
+      - ./create-mysql-dump.sh:/create-mysql-dump.sh
+    entrypoint: ""
+    command: "sleep infinity"
+    networks:
+      - default
+      - wiki
+    labels:
+      cron.enabled: true
+      cron.bot.schedule: "0 1 * * *"
+      cron.bot.command: "/create-mysql-dump.sh --result-path /data/prod.mysqldump.sql.gz"
+
+  # copies images from the wiki images volume to the remote S3 bucket
   rclone-images:
     image: "rclone/rclone"
     restart: "no"
-    command: "--s3-versions --transfers=10 --config=/rclone.conf --s3-acl public-read sync /images ovhcloud:BUCKET_NAME"
+    entrypoint: ""
+    command: "sleep infinity"
+    networks:
+      - default
     volumes:
-      - images:/images
-      - ./_resources/rclone.conf:/rclone.conf
+      - images:/images:ro
+    environment: *rclone-config
+    labels:
+      cron.enabled: true
+      cron.bot.schedule: "0 4 * * *"
+      cron.bot.command: "rclone --s3-versions --transfers=10 --s3-acl public-read sync /images ovhcloud:${BUCKET_NAME:?undefined}"
+
+  # copies database dump from the mounted in directory to the remote S3 bucket
   rclone-migration:
     image: "rclone/rclone"
     restart: "no"
-    command: "--track-renames --transfers=10 --config=/rclone.conf sync /data ovhcloud:BUCKET_NAME"
+    entrypoint: ""
+    command: "sleep infinity"
+    networks:
+      - default
     volumes:
-      - ./_migration_data:/data
-      - ./_resources/rclone.conf:/rclone.conf
+      - database_dumps:/data:ro
+    environment: *rclone-config
+    labels:
+      cron.enabled: true
+      cron.bot.schedule: "0 5 * * *"
+      cron.bot.command: "rclone --track-renames --transfers=10 sync /data ovhcloud:${BUCKET_NAME:?undefined}"
+
+  cron:
+    image: ghcr.io/wikiteq/cron:20250110-ddded6a
+    networks:
+      - default
+    environment:
+      - COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME}
+      - DEBUG=${CRON_DEBUG:-0}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./_logs/cron:/var/log/cron
 
 volumes:
+  database_dumps:
   images:
     external: true
-    name: VOLUMENAME_images
+    name: ${VOLUMENAME:?undefined}
+
+networks:
+  wiki:
+    external:
+      name: ${WIKI_NETWORK:?undefined}
