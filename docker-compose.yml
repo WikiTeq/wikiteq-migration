@@ -29,7 +29,7 @@ services:
       - WIKI_MYSQL_ROOT_PASSWORD
     labels:
       cron.enabled: true
-      cron.bot.schedule: "0 1 * * *"
+      cron.bot.schedule: ${CRON_DATABASE:-0 1 * * *}
       cron.bot.command: "/create-mysql-dump.sh --result-path /data/prod.mysqldump.sql.gz"
 
   # copies images from the wiki images volume to the remote S3 bucket
@@ -47,7 +47,7 @@ services:
     environment: *rclone-config
     labels:
       cron.enabled: true
-      cron.bot.schedule: "0 4 * * *"
+      cron.bot.schedule: ${CRON_UPLOAD_IMAGES:-0 4 * * *}
       cron.bot.command: "rclone --s3-versions --transfers=10 --s3-acl public-read sync /images ovhcloud:${IMAGES_BUCKET_NAME:?undefined}"
 
   # copies database dump from the mounted in directory to the remote S3 bucket
@@ -65,7 +65,7 @@ services:
     environment: *rclone-config
     labels:
       cron.enabled: true
-      cron.bot.schedule: "0 5 * * *"
+      cron.bot.schedule: ${CRON_UPLOAD_DB:-0 5 * * *}
       cron.bot.command: "rclone --track-renames --transfers=10 sync /data ovhcloud:${DB_BUCKET_NAME:?undefined}"
 
   cron:
