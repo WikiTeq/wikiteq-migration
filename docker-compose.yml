@@ -22,6 +22,9 @@ services:
     networks:
       - default
       - wiki
+    environment:
+      - WIKI_MYSQL_HOST
+      - WIKI_MYSQL_ROOT_PASSWORD
     labels:
       cron.enabled: true
       cron.bot.schedule: "0 1 * * *"
