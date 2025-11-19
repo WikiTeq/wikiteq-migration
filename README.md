@@ -19,3 +19,9 @@ The images are also copied to the S3 bucket using rclone
 * `S3_SECRET_KEY` - The secret key for the S3 bucket
 * `WIKI_MYSQL_HOST` - The hostname of the MediaWiki MySQL database container (usuaslly `db`)
 * `WIKI_MYSQL_ROOT_PASSWORD` - The root password for the MediaWiki MySQL database container
+
+## Default schedule
+
+`0 1 * * *` - Dump the databases
+`0 4 * * *` - Upload the images to S3
+`0 5 * * *` - Copy the databases to S3
