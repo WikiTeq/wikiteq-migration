@@ -20,6 +20,13 @@ The images are also copied to the S3 bucket using rclone
 * `S3_SECRET_KEY` - The secret key for the S3 bucket
 * `WIKI_MYSQL_HOST` - The hostname of the MediaWiki MySQL database container (usuaslly `db`)
 * `WIKI_MYSQL_ROOT_PASSWORD` - The root password for the MediaWiki MySQL database container
+* `COMPOSE_PROFILES` - The profiles (comma-separated) to use for docker-compose, defaults is `database,rclone-images,rclone-database`
+
+## Profiles
+
+* `database` - Dump the database
+* `rclone-images` - Upload the images to S3
+* `rclone-database` - Upload database dumps to S3
 
 ## Default schedule
 

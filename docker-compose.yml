@@ -14,6 +14,8 @@ services:
   # creates mysql database dumps and stores in a volume
   database_dumper:
     image: schnitzler/mysqldump
+    profiles:
+      - database
     volumes:
       - database_dumps:/data
       - ./create-mysql-dump.sh:/create-mysql-dump.sh
@@ -32,6 +34,8 @@ services:
 
   # copies images from the wiki images volume to the remote S3 bucket
   rclone-images:
+    profiles:
+      - rclone-images
     image: "rclone/rclone"
     restart: "no"
     entrypoint: ""
@@ -48,6 +52,8 @@ services:
 
   # copies database dump from the mounted in directory to the remote S3 bucket
   rclone-migration:
+    profiles:
+      - rclone-database
     image: "rclone/rclone"
     restart: "no"
     entrypoint: ""
@@ -81,5 +87,5 @@ volumes:
 
 networks:
   wiki:
-    external:
-      name: ${WIKI_NETWORK:?undefined}
+    name: ${WIKI_NETWORK:?undefined}
+    external: true
