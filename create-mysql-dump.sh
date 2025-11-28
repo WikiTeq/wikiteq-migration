@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 if [ -z "$WIKI_MYSQL_HOST" ]; then
     echo 'Error: WIKI_MYSQL_HOST is required' >&2
