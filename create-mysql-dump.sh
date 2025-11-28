@@ -32,9 +32,6 @@ fi
 mysqldump \
   --host "$WIKI_MYSQL_HOST" \
   --all-databases \
-  --triggers \
-  --routines \
-  --events \
   --single-transaction \
   --skip-lock-tables \
   --column-statistics \
