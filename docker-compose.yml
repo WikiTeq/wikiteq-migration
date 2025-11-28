@@ -13,7 +13,7 @@ services:
 
   # creates mysql database dumps and stores in a volume
   migration-database-dumper:
-    image: schnitzler/mysqldump
+    image: mysql:8.0
     profiles:
       - database
     volumes:
