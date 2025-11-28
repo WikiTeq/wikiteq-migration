@@ -1,22 +1,22 @@
 #!/bin/bash
 
 if [ -z "$WIKI_MYSQL_HOST" ]; then
-    echo 'Error: `WIKI_MYSQL_HOST` is required' >&2
+    echo 'Error: WIKI_MYSQL_HOST is required' >&2
     exit 1
 fi
 
 if [ -z "$WIKI_MYSQL_ROOT_PASSWORD" ]; then
-    echo 'Error: `WIKI_MYSQL_ROOT_PASSWORD` is required' >&2
+    echo 'Error: WIKI_MYSQL_ROOT_PASSWORD is required' >&2
     exit 1
 fi
 
 if [ -z "$result_path" ]; then
-    echo 'Error: `--result-path PATH` is required' >&2
+    echo 'Error: --result-path PATH is required' >&2
     exit 1
 fi
 
-result_filename=`basename "$result_path"`
-result_dirname=`dirname "$result_path"`
+result_filename=$(basename "$result_path")
+result_dirname=$(dirname "$result_path")
 
 if [ -d "$result_dirname" ]; then
     echo "Dir ${result_dirname} must exist!";
@@ -24,9 +24,9 @@ if [ -d "$result_dirname" ]; then
 fi
 
 if [ -f "${result_dirname}/${result_filename}" ]; then
-    ctime=`stat --format '%Y' ${result_dirname}/${result_filename}`
+    ctime=$(stat --format '%Y' "${result_dirname}/${result_filename}")
     mv "${result_dirname}/${result_filename}" "${result_dirname}/${result_filename}.${ctime}"
-    find ${result_dirname} -name "${result_filename}.*" | tail -n +4 | xargs -I %% rm %%
+    find "${result_dirname}" -name "${result_filename}.*" | tail -n +4 | xargs -I %% rm %%
 fi
 
 mysqldump \
