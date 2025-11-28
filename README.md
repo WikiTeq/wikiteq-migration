@@ -40,3 +40,5 @@ The images are also copied to the S3 bucket using rclone
 for backing up all the databases and the first wiki images volume.
 * Clone a second copy of the stack and enable just the `rclone-images` profile. This second instance will be responsible
 for backing up the second wiki images volume. Optionally configure `CRON_UPLOAD_IMAGES` to run at a different time.
+
+Note: the for >1 wiki setup the `IMAGES_BUCKET_NAME` must contain subdir suffixes, i.e. `mywiki-bucket/wiki1` and `mywiki-bucket/wiki2`
