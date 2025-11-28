@@ -33,3 +33,10 @@ The images are also copied to the S3 bucket using rclone
 `0 1 * * *` - Dump the databases
 `0 4 * * *` - Upload the images to S3
 `0 5 * * *` - Copy the databases to S3
+
+## Running the stack to back up more than one wiki
+
+* Clone & configure the stack copy to run for the first wiki. This first instance of the stack will be responsible
+for backing up all the databases and the first wiki images volume.
+* Clone a second copy of the stack and enable just the `rclone-images` profile. This second instance will be responsible
+for backing up the second wiki images volume. Optionally configure `CRON_UPLOAD_IMAGES` to run at a different time.
