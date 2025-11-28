@@ -37,14 +37,12 @@ fi
 
 echo "Creating dump..."
 
-mysqldump \
-  --host "$WIKI_MYSQL_HOST" \
+mysqldump --host "$WIKI_MYSQL_HOST" \
   --all-databases \
   --single-transaction \
   --skip-lock-tables \
   --column-statistics \
   -u root \
-  -p "$WIKI_MYSQL_ROOT_PASSWORD" \
-  | gzip > "${result_path}"
+  -p "$WIKI_MYSQL_ROOT_PASSWORD" | gzip > "${result_path}"
 
 echo "Dump created successfully!"
