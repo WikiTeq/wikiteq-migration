@@ -1,17 +1,19 @@
 #!/bin/sh
 
+result_path=$1
+
+if [ -z "$result_path" ]; then
+    echo 'Error: PATH parameter is required' >&2
+    exit 1
+fi
+
 if [ -z "$WIKI_MYSQL_HOST" ]; then
-    echo 'Error: WIKI_MYSQL_HOST is required' >&2
+    echo 'Error: WIKI_MYSQL_HOST env is required' >&2
     exit 1
 fi
 
 if [ -z "$WIKI_MYSQL_ROOT_PASSWORD" ]; then
-    echo 'Error: WIKI_MYSQL_ROOT_PASSWORD is required' >&2
-    exit 1
-fi
-
-if [ -z "$result_path" ]; then
-    echo 'Error: --result-path PATH is required' >&2
+    echo 'Error: WIKI_MYSQL_ROOT_PASSWORD env is required' >&2
     exit 1
 fi
 

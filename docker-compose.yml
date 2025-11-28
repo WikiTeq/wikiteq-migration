@@ -30,7 +30,7 @@ services:
     labels:
       cron.enabled: ${CRON_ENABLED:-true}
       cron.bot.schedule: ${CRON_DATABASE:-0 1 * * *}
-      cron.bot.command: "/create-mysql-dump.sh --result-path /data/prod.mysqldump.sql.gz"
+      cron.bot.command: "/create-mysql-dump.sh /data/prod.mysqldump.sql.gz"
 
   # copies images from the wiki images volume to the remote S3 bucket
   migration-rclone-images:
