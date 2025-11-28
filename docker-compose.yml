@@ -12,7 +12,7 @@ x-rclone-config: &rclone-config
 services:
 
   # creates mysql database dumps and stores in a volume
-  database_dumper:
+  migration-database-dumper:
     image: schnitzler/mysqldump
     profiles:
       - database
@@ -33,7 +33,7 @@ services:
       cron.bot.command: "/create-mysql-dump.sh --result-path /data/prod.mysqldump.sql.gz"
 
   # copies images from the wiki images volume to the remote S3 bucket
-  rclone-images:
+  migration-rclone-images:
     profiles:
       - rclone-images
     image: "rclone/rclone"
@@ -51,7 +51,7 @@ services:
       cron.bot.command: "rclone --s3-versions --transfers=10 --s3-acl public-read sync /images ovhcloud:${IMAGES_BUCKET_NAME:?undefined}"
 
   # copies database dump from the mounted in directory to the remote S3 bucket
-  rclone-migration:
+  migration-rclone-migration:
     profiles:
       - rclone-database
     image: "rclone/rclone"
@@ -68,7 +68,7 @@ services:
       cron.bot.schedule: ${CRON_UPLOAD_DB:-0 5 * * *}
       cron.bot.command: "rclone --track-renames --transfers=10 sync /data ovhcloud:${DB_BUCKET_NAME:?undefined}"
 
-  cron:
+  migration-cron:
     image: ghcr.io/wikiteq/cron:20250110-ddded6a
     networks:
       - default
