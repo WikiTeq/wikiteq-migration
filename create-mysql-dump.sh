@@ -20,7 +20,7 @@ fi
 result_filename=$(basename "$result_path")
 result_dirname=$(dirname "$result_path")
 
-if [ -d "$result_dirname" ]; then
+if [ ! -d "$result_dirname" ]; then
     echo "Dir ${result_dirname} must exist!";
     exit 1;
 fi
