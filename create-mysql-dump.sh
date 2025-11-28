@@ -43,7 +43,7 @@ mysqldump \
   --skip-lock-tables \
   --column-statistics \
   --host "$WIKI_MYSQL_HOST" \
-  --user root \
-  --password "$WIKI_MYSQL_ROOT_PASSWORD" | gzip > "${result_path}"
+  --user="root" \
+  --password="$WIKI_MYSQL_ROOT_PASSWORD" | gzip > "${result_path}"
 
 echo "Dump created successfully!"
