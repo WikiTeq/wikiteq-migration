@@ -28,7 +28,7 @@ services:
       - WIKI_MYSQL_HOST
       - WIKI_MYSQL_ROOT_PASSWORD
     labels:
-      cron.enabled: true
+      cron.enabled: ${CRON_ENABLED:-true}
       cron.bot.schedule: ${CRON_DATABASE:-0 1 * * *}
       cron.bot.command: "/create-mysql-dump.sh --result-path /data/prod.mysqldump.sql.gz"
 
@@ -46,7 +46,7 @@ services:
       - images:/images:ro
     environment: *rclone-config
     labels:
-      cron.enabled: true
+      cron.enabled: ${CRON_ENABLED:-true}
       cron.bot.schedule: ${CRON_UPLOAD_IMAGES:-0 4 * * *}
       cron.bot.command: "rclone --s3-versions --transfers=10 --s3-acl public-read sync /images ovhcloud:${IMAGES_BUCKET_NAME:?undefined}"
 
@@ -64,7 +64,7 @@ services:
       - database_dumps:/data:ro
     environment: *rclone-config
     labels:
-      cron.enabled: true
+      cron.enabled: ${CRON_ENABLED:-true}
       cron.bot.schedule: ${CRON_UPLOAD_DB:-0 5 * * *}
       cron.bot.command: "rclone --track-renames --transfers=10 sync /data ovhcloud:${DB_BUCKET_NAME:?undefined}"
 
