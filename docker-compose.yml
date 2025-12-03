@@ -21,6 +21,7 @@ services:
     volumes:
       - database_dumps:/data
       - ./create-mysql-dump.sh:/create-mysql-dump.sh
+      - ./healthchecks-ping.sh:/healthchecks-ping.sh
     entrypoint: ""
     command: "sleep infinity"
     networks:
@@ -50,6 +51,7 @@ services:
       - default
     volumes:
       - images:/images:ro
+      - ./healthchecks-ping.sh:/healthchecks-ping.sh
     environment:
       <<: *rclone-config
       H_PING_KEY:
@@ -73,6 +75,7 @@ services:
       - default
     volumes:
       - database_dumps:/data:ro
+      - ./healthchecks-ping.sh:/healthchecks-ping.sh
     environment:
       <<: *rclone-config
       H_PING_KEY:
