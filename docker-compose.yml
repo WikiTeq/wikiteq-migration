@@ -1,15 +1,15 @@
 x-rclone-config: &rclone-config
-    - RCLONE_CONFIG_OVHCLOUD_TYPE=s3
-    - RCLONE_CONFIG_OVHCLOUD_PROVIDER=Other
-    - RCLONE_CONFIG_OVHCLOUD_ENV_AUTH=false
-    - RCLONE_CONFIG_OVHCLOUD_ACCESS_KEY_ID=${S3_ACCESS_KEY:?undefined}
-    - RCLONE_CONFIG_OVHCLOUD_SECRET_ACCESS_KEY=${S3_SECRET_KEY:?undefined}
-    - RCLONE_CONFIG_OVHCLOUD_ENDPOINT=https://s3.us-east-va.perf.cloud.ovh.us
-    - RCLONE_CONFIG_OVHCLOUD_ACL=private
-    - RCLONE_CONFIG_OVHCLOUD_REGION=us-east-va
-    - RCLONE_CONFIG_OVHCLOUD_LOCATION_CONSTRAINT=us-east-va
-    - IMAGES_BUCKET_NAME=${IMAGES_BUCKET_NAME:?undefined}
-    - DB_BUCKET_NAME=${DB_BUCKET_NAME:?undefined}
+    RCLONE_CONFIG_OVHCLOUD_TYPE: s3
+    RCLONE_CONFIG_OVHCLOUD_PROVIDER: Other
+    RCLONE_CONFIG_OVHCLOUD_ENV_AUTH: false
+    RCLONE_CONFIG_OVHCLOUD_ACCESS_KEY_ID: ${S3_ACCESS_KEY:?undefined}
+    RCLONE_CONFIG_OVHCLOUD_SECRET_ACCESS_KEY: ${S3_SECRET_KEY:?undefined}
+    RCLONE_CONFIG_OVHCLOUD_ENDPOINT: https://s3.us-east-va.perf.cloud.ovh.us
+    RCLONE_CONFIG_OVHCLOUD_ACL: private
+    RCLONE_CONFIG_OVHCLOUD_REGION: us-east-va
+    RCLONE_CONFIG_OVHCLOUD_LOCATION_CONSTRAINT: us-east-va
+    IMAGES_BUCKET_NAME: ${IMAGES_BUCKET_NAME:?undefined}
+    DB_BUCKET_NAME: ${DB_BUCKET_NAME:?undefined}
 
 services:
 
@@ -29,10 +29,14 @@ services:
     environment:
       - WIKI_MYSQL_HOST
       - WIKI_MYSQL_ROOT_PASSWORD
+      - H_PING_KEY
+      - H_SLUG
+      - H_SLUG_SUFFIX=-database-dump
     labels:
       cron.enabled: ${CRON_ENABLED:-true}
       cron.bot.schedule: ${CRON_DATABASE:-0 1 * * *}
-      cron.bot.command: "/create-mysql-dump.sh /data/prod.mysqldump.sql.gz"
+      cron.bot.command: >
+        /bin/sh -c '/create-mysql-dump.sh /data/prod.mysqldump.sql.gz && /healthchecks-ping.sh'
 
   # copies images from the wiki images volume to the remote S3 bucket
   migration-rclone-images:
@@ -46,11 +50,16 @@ services:
       - default
     volumes:
       - images:/images:ro
-    environment: *rclone-config
+    environment:
+      <<: *rclone-config
+      H_PING_KEY:
+      H_SLUG:
+      H_SLUG_SUFFIX: -rclone-images
     labels:
       cron.enabled: ${CRON_ENABLED:-true}
       cron.bot.schedule: ${CRON_UPLOAD_IMAGES:-0 4 * * *}
-      cron.bot.command: "rclone --s3-versions --transfers=10 --s3-acl public-read sync /images ovhcloud:$IMAGES_BUCKET_NAME"
+      cron.bot.command: >
+        /bin/sh -c 'rclone --s3-versions --transfers=10 --s3-acl public-read sync /images ovhcloud:$IMAGES_BUCKET_NAME && /healthchecks-ping.sh'
 
   # copies database dump from the mounted in directory to the remote S3 bucket
   migration-rclone-migration:
@@ -64,11 +73,16 @@ services:
       - default
     volumes:
       - database_dumps:/data:ro
-    environment: *rclone-config
+    environment:
+      <<: *rclone-config
+      H_PING_KEY:
+      H_SLUG:
+      H_SLUG_SUFFIX: -rclone-database
     labels:
       cron.enabled: ${CRON_ENABLED:-true}
       cron.bot.schedule: ${CRON_UPLOAD_DB:-0 5 * * *}
-      cron.bot.command: "rclone --track-renames --transfers=10 sync /data ovhcloud:$DB_BUCKET_NAME"
+      cron.bot.command: >
+        /bin/sh -c 'rclone --track-renames --transfers=10 sync /data ovhcloud:$DB_BUCKET_NAME && /healthchecks-ping.sh'
 
   migration-cron:
     image: ghcr.io/wikiteq/cron:20250110-ddded6a
