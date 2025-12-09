@@ -36,8 +36,9 @@ services:
     labels:
       cron.enabled: ${CRON_ENABLED:-true}
       cron.bot.schedule: ${CRON_DATABASE:-0 1 * * *}
+      # cron already runs it as sh -c '...'
       cron.bot.command: >
-        /bin/sh -c '/create-mysql-dump.sh /data/prod.mysqldump.sql.gz && /healthchecks-ping.sh'
+        /create-mysql-dump.sh /data/prod.mysqldump.sql.gz && /healthchecks-ping.sh
 
   # copies images from the wiki images volume to the remote S3 bucket
   migration-rclone-images:
@@ -60,8 +61,9 @@ services:
     labels:
       cron.enabled: ${CRON_ENABLED:-true}
       cron.bot.schedule: ${CRON_UPLOAD_IMAGES:-0 4 * * *}
+      # cron already runs it as sh -c '...'
       cron.bot.command: >
-        /bin/sh -c 'rclone --s3-versions --transfers=10 --s3-acl public-read sync /images ovhcloud:$IMAGES_BUCKET_NAME && /healthchecks-ping.sh'
+        rclone --s3-versions --transfers=10 --s3-acl public-read sync /images ovhcloud:$IMAGES_BUCKET_NAME && /healthchecks-ping.sh
 
   # copies database dump from the mounted in directory to the remote S3 bucket
   migration-rclone-migration:
@@ -84,8 +86,9 @@ services:
     labels:
       cron.enabled: ${CRON_ENABLED:-true}
       cron.bot.schedule: ${CRON_UPLOAD_DB:-0 5 * * *}
+      # cron already runs it as sh -c '...'
       cron.bot.command: >
-        /bin/sh -c 'rclone --track-renames --transfers=10 sync /data ovhcloud:$DB_BUCKET_NAME && /healthchecks-ping.sh'
+        rclone --track-renames --transfers=10 sync /data ovhcloud:$DB_BUCKET_NAME && /healthchecks-ping.sh
 
   migration-cron:
     image: ghcr.io/wikiteq/cron:20250110-ddded6a
