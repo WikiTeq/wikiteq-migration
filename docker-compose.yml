@@ -15,6 +15,11 @@ services:
 
   # creates mysql database dumps and stores in a volume
   migration-database-dumper:
+    security_opt:
+      - seccomp=unconfined
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
     image: mysql:8.0
     profiles:
       - database
@@ -42,6 +47,11 @@ services:
 
   # copies images from the wiki images volume to the remote S3 bucket
   migration-rclone-images:
+    security_opt:
+      - seccomp=unconfined
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
     profiles:
       - rclone-images
     image: "rclone/rclone"
@@ -67,6 +77,11 @@ services:
 
   # copies database dump from the mounted in directory to the remote S3 bucket
   migration-rclone-migration:
+    security_opt:
+      - seccomp=unconfined
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
     profiles:
       - rclone-database
     image: "rclone/rclone"
