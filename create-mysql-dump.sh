@@ -37,13 +37,19 @@ fi
 
 echo "Creating dump..."
 
-mysqldump \
+set -o pipefail
+
+if ! mysqldump \
   --all-databases \
   --single-transaction \
   --skip-lock-tables \
   --column-statistics \
   --host "$WIKI_MYSQL_HOST" \
   --user="root" \
-  --password="$WIKI_MYSQL_ROOT_PASSWORD" | gzip > "${result_path}"
+  --password="$WIKI_MYSQL_ROOT_PASSWORD" | gzip > "${result_path}"; then
+    echo "Error: mysqldump failed, ${result_path} is incomplete or invalid!" >&2
+    rm -f "${result_path}"
+    exit 1
+fi
 
 echo "Dump created successfully!"
